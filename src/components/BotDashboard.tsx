@@ -23,8 +23,9 @@ interface TradeSignal {
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
-// Set this to your deployed bot URL (Railway/Fly.io)
-const BOT_API_URL = process.env.NEXT_PUBLIC_BOT_API_URL ?? "http://localhost:8080";
+// Set NEXT_PUBLIC_BOT_API_URL in your environment (Railway dashboard or .env.local)
+// e.g. https://trading-bot-production.up.railway.app
+const BOT_API_URL = process.env.NEXT_PUBLIC_BOT_API_URL ?? "https://trading-bot-production.up.railway.app";
 
 // ─── Component ────────────────────────────────────────────────────────────────
 

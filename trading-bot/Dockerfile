@@ -32,7 +32,6 @@ COPY --from=builder /build/target/ta4j-trading-bot-*.jar app.jar
 # ─── JVM Optimization Flags ───────────────────────────────────────────────────
 # ZGC: low-latency GC ideal for trading (sub-millisecond pauses)
 # -Xms128m / -Xmx512m: fits in Railway/Fly.io free tier (512MB RAM)
-# -XX:+UseStringDeduplication: reduces heap for repeated strings
 # -Djava.security.egd: faster SecureRandom (important for Spring startup)
 ENV JAVA_OPTS="\
   -XX:+UseZGC \
@@ -40,7 +39,6 @@ ENV JAVA_OPTS="\
   -Xms128m \
   -Xmx512m \
   -XX:+OptimizeStringConcat \
-  -XX:+UseStringDeduplication \
   -Djava.security.egd=file:/dev/./urandom \
   -Dspring.jmx.enabled=false \
   -Dspring.main.lazy-initialization=true"

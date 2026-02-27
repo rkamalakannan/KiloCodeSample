@@ -142,7 +142,6 @@
                         -Xms128m
                         -Xmx512m
                         -XX:+OptimizeStringConcat
-                        -XX:+UseStringDeduplication
                     </jvmArguments>
                 </configuration>
                 <executions>
@@ -162,9 +161,6 @@
                 <configuration>
                     <source>21</source>
                     <target>21</target>
-                    <compilerArgs>
-                        <arg>--enable-preview</arg>
-                    </compilerArgs>
                     <release>21</release>
                 </configuration>
             </plugin>
@@ -175,7 +171,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
                 <configuration>
-                    <argLine>--enable-preview</argLine>
+                    <useModulePath>false</useModulePath>
                 </configuration>
             </plugin>
         </plugins>

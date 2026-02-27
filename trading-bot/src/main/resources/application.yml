@@ -1,0 +1,51 @@
+# ─── Trading Bot Configuration ────────────────────────────────────────────────
+# All values can be overridden via environment variables (12-factor app style)
+# e.g. BOT_SYMBOLS=BTCUSDT,ETHUSDT  BOT_INTERVAL=1h
+
+spring:
+  application:
+    name: ta4j-trading-bot
+  main:
+    lazy-initialization: true       # faster startup on cheap cloud instances
+  jmx:
+    enabled: false                  # disable JMX to save memory
+
+# ─── Server ───────────────────────────────────────────────────────────────────
+server:
+  port: ${PORT:8080}                # Railway/Fly.io inject PORT automatically
+  compression:
+    enabled: true
+    mime-types: application/json,text/plain
+  tomcat:
+    threads:
+      max: 20                       # limit threads on 512MB instances
+      min-spare: 2
+
+# ─── Actuator (health checks + metrics) ──────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,caches
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# ─── Bot Settings ─────────────────────────────────────────────────────────────
+bot:
+  symbols: ${BOT_SYMBOLS:BTCUSDT,ETHUSDT,SOLUSDT}
+  interval: ${BOT_INTERVAL:5m}
+  bars: ${BOT_BARS:200}
+  scanRateMs: ${BOT_SCAN_RATE_MS:60000}   # scan every 60 seconds
+
+# ─── Logging ──────────────────────────────────────────────────────────────────
+logging:
+  level:
+    root: INFO
+    com.tradingbot: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

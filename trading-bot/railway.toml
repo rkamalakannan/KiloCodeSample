@@ -1,0 +1,21 @@
+# Railway deployment configuration
+# https://docs.railway.app/reference/config-as-code
+#
+# Railway Hobby plan: $5/month — always-on, 512MB RAM, 1 vCPU
+# Deploy: connect GitHub repo → Railway auto-detects Dockerfile
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = ""          # Dockerfile ENTRYPOINT handles this
+healthcheckPath = "/api/health"
+healthcheckTimeout = 60    # seconds — allow JVM warmup
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+# Environment variables (set in Railway dashboard, not here for security)
+# BOT_SYMBOLS=BTCUSDT,ETHUSDT,SOLUSDT
+# BOT_INTERVAL=5m
+# BOT_SCAN_RATE_MS=60000

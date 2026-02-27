@@ -1,0 +1,132 @@
+name: Build & Deploy Trading Bot
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'trading-bot/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'trading-bot/**'
+  workflow_dispatch:   # allow manual trigger
+
+env:
+  JAVA_VERSION: '21'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/trading-bot
+
+jobs:
+  # ─── Test & Build ────────────────────────────────────────────────────────────
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: trading-bot
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build with Maven
+        run: ./mvnw package -DskipTests -q
+
+      - name: Run Tests
+        run: ./mvnw test
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: trading-bot-jar
+          path: trading-bot/target/ta4j-trading-bot-*.jar
+          retention-days: 7
+
+  # ─── Docker Build & Push ─────────────────────────────────────────────────────
+  docker:
+    name: Docker Build & Push
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    defaults:
+      run:
+        working-directory: trading-bot
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix=sha-
+            type=raw,value=latest
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: trading-bot
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ─── Deploy to Railway ───────────────────────────────────────────────────────
+  deploy-railway:
+    name: Deploy to Railway
+    runs-on: ubuntu-latest
+    needs: docker
+    if: github.ref == 'refs/heads/main'
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          cd trading-bot
+          railway up --service ta4j-trading-bot --detach
+
+  # ─── Deploy to Fly.io (alternative) ─────────────────────────────────────────
+  # Uncomment to use Fly.io instead of Railway
+  # deploy-fly:
+  #   name: Deploy to Fly.io
+  #   runs-on: ubuntu-latest
+  #   needs: docker
+  #   if: github.ref == 'refs/heads/main'
+  #   environment: production
+  #
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: superfly/flyctl-actions/setup-flyctl@master
+  #     - run: cd trading-bot && flyctl deploy --remote-only
+  #       env:
+  #         FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

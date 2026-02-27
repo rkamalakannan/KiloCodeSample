@@ -111,9 +111,25 @@ export default function BotDashboard() {
 
         {/* Error Banner */}
         {error && (
-          <div className="mb-6 p-4 bg-red-900/50 border border-red-700 rounded-lg text-red-300">
-            ⚠️ {error} — Make sure the bot is running at{" "}
-            <code className="text-red-200">{BOT_API_URL}</code>
+          <div className="mb-6 p-4 bg-amber-900/40 border border-amber-700 rounded-xl text-amber-300">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">🔌</span>
+              <div>
+                <p className="font-semibold text-amber-200 mb-1">Bot not connected</p>
+                <p className="text-sm text-amber-400 mb-3">
+                  The trading bot backend is not reachable at{" "}
+                  <code className="bg-amber-900/60 px-1.5 py-0.5 rounded text-amber-200">{BOT_API_URL}</code>
+                </p>
+                <div className="text-sm text-amber-400 space-y-1">
+                  <p className="font-medium text-amber-300">To deploy the bot:</p>
+                  <ol className="list-decimal list-inside space-y-1 ml-1">
+                    <li>Go to <a href="https://railway.app" target="_blank" rel="noreferrer" className="underline text-amber-200 hover:text-white">railway.app</a> → New Project → Deploy from GitHub</li>
+                    <li>Select your repo, set Root Directory to <code className="bg-amber-900/60 px-1 rounded">trading-bot</code></li>
+                    <li>After deploy, set <code className="bg-amber-900/60 px-1 rounded">NEXT_PUBLIC_BOT_API_URL</code> to your Railway URL</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -152,10 +168,17 @@ export default function BotDashboard() {
           {Object.entries(signals).map(([symbol, symbolSignals]) => (
             <SignalTable key={symbol} symbol={symbol} signals={symbolSignals} />
           ))}
-          {!loading && Object.keys(signals).length === 0 && (
+          {!loading && Object.keys(signals).length === 0 && !error && (
             <div className="text-center py-16 text-neutral-500">
               <p className="text-4xl mb-3">📭</p>
               <p>No signals yet &mdash; click &ldquo;Scan Now&rdquo; to trigger the first scan</p>
+            </div>
+          )}
+          {!loading && error && (
+            <div className="text-center py-16 text-neutral-600">
+              <p className="text-5xl mb-4">🤖</p>
+              <p className="text-lg font-medium text-neutral-500 mb-2">Trading Bot Offline</p>
+              <p className="text-sm text-neutral-600">Deploy the Java bot to Railway or Fly.io to see live signals here</p>
             </div>
           )}
         </div>

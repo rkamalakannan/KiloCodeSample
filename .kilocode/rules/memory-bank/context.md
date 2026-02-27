@@ -69,3 +69,4 @@ trading-bot/src/main/java/com/tradingbot/
 | 2026-02-27 | Added Ta4j trading bot with full optimization + cloud deployment |
 | 2026-02-27 | Fixed compilation errors: removed IsLessThanRule (not in Ta4j 0.16), --enable-preview, UseStringDeduplication (ZGC incompatible) |
 | 2026-02-27 | Improved dashboard offline state with Railway setup instructions; auto-push to GitHub configured |
+| 2026-02-27 | Replaced localhost:8080 fallback with Railway URL in BotDashboard; added .env.local.example |

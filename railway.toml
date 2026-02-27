@@ -1,0 +1,12 @@
+# Railway config for the Next.js dashboard
+# This deploys the frontend UI alongside the Java trading bot
+
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "bun start"
+healthcheckPath = "/"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
